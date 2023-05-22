@@ -25,7 +25,7 @@ pub(crate) struct Write<T> {
 }
 
 impl<T: IoBuf> Op<Write<T>> {
-    pub(crate) fn write_at(fd: &SharedFd, buf: T, offset: u64) -> io::Result<Op<Write<T>>> {
+    pub fn write_at(fd: &SharedFd, buf: T, offset: u64) -> io::Result<Op<Write<T>>> {
         Op::submit_with(Write {
             fd: fd.clone(),
             offset,
@@ -33,7 +33,7 @@ impl<T: IoBuf> Op<Write<T>> {
         })
     }
 
-    pub(crate) async fn write(self) -> BufResult<usize, T> {
+    pub async fn write(self) -> BufResult<usize, T> {
         let complete = self.await;
         (complete.meta.result.map(|v| v as _), complete.data.buf)
     }
@@ -88,7 +88,7 @@ impl<T: IoBuf> OpAble for Write<T> {
     }
 }
 
-pub(crate) struct WriteVec<T> {
+pub struct WriteVec<T> {
     /// Holds a strong ref to the FD, preventing the file from being closed
     /// while the operation is in-flight.
     #[allow(unused)]
@@ -98,7 +98,7 @@ pub(crate) struct WriteVec<T> {
 }
 
 impl<T: IoVecBuf> Op<WriteVec<T>> {
-    pub(crate) fn writev(fd: &SharedFd, buf_vec: T) -> io::Result<Self> {
+    pub fn writev(fd: &SharedFd, buf_vec: T) -> io::Result<Self> {
         Op::submit_with(WriteVec {
             fd: fd.clone(),
             buf_vec,
@@ -113,7 +113,7 @@ impl<T: IoVecBuf> Op<WriteVec<T>> {
         }
     }
 
-    pub(crate) async fn write(self) -> BufResult<usize, T> {
+    pub async fn write(self) -> BufResult<usize, T> {
         let complete = self.await;
         (complete.meta.result.map(|v| v as _), complete.data.buf_vec)
     }

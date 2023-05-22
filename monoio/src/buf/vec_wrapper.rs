@@ -1,6 +1,6 @@
 use super::{IoVecBuf, IoVecBufMut};
 
-pub(crate) struct IoVecMeta {
+pub struct IoVecMeta {
     #[cfg(unix)]
     data: Vec<libc::iovec>,
     offset: usize,
@@ -8,7 +8,7 @@ pub(crate) struct IoVecMeta {
 }
 
 /// Read IoVecBuf meta data into a Vec.
-pub(crate) fn read_vec_meta<T: IoVecBuf>(iovec_buf: &T) -> IoVecMeta {
+pub fn read_vec_meta<T: IoVecBuf>(iovec_buf: &T) -> IoVecMeta {
     #[cfg(unix)]
     {
         let ptr = iovec_buf.read_iovec_ptr();
@@ -34,7 +34,7 @@ pub(crate) fn read_vec_meta<T: IoVecBuf>(iovec_buf: &T) -> IoVecMeta {
 }
 
 /// Read IoVecBufMut meta data into a Vec.
-pub(crate) fn write_vec_meta<T: IoVecBufMut>(iovec_buf: &mut T) -> IoVecMeta {
+pub fn write_vec_meta<T: IoVecBufMut>(iovec_buf: &mut T) -> IoVecMeta {
     #[cfg(unix)]
     {
         let ptr = iovec_buf.write_iovec_ptr();
@@ -91,7 +91,7 @@ impl IoVecMeta {
         }
     }
 
-    pub(crate) fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.len
     }
 }

@@ -1,6 +1,6 @@
-/// Monoio Driver.
 // #[cfg(unix)]
-pub(crate) mod op;
+/// Monoio Driver.
+pub mod op;
 pub(crate) mod shared_fd;
 #[cfg(feature = "sync")]
 pub(crate) mod thread;

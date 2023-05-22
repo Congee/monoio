@@ -55,7 +55,7 @@ use crate::{
 /// ```
 pub struct File {
     /// Open file descriptor
-    fd: SharedFd,
+    pub fd: SharedFd,
 }
 
 impl File {

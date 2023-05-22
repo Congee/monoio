@@ -7,7 +7,7 @@
 //! local storage to avoid synchronization structures like Mutex; also, the
 //! submit task will always be executed on the same thread.
 
-#![warn(missing_docs, unreachable_pub)]
+#![warn(unreachable_pub)]
 #![allow(stable_features)]
 #![feature(generic_associated_types)]
 #![feature(type_alias_impl_trait)]
@@ -19,6 +19,7 @@
 #![feature(unboxed_closures)]
 #![feature(once_cell)]
 #![feature(lazy_cell)]
+#![feature(impl_trait_in_assoc_type)]
 
 #[macro_use]
 pub mod macros;
@@ -26,7 +27,8 @@ pub mod macros;
 #[doc(hidden)]
 pub use monoio_macros::select_priv_declare_output_enum;
 #[macro_use]
-mod driver;
+/// driver
+pub mod driver;
 pub(crate) mod builder;
 pub(crate) mod runtime;
 mod scheduler;

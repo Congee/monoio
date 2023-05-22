@@ -19,7 +19,7 @@ mod raw_buf;
 pub use raw_buf::{RawBuf, RawBufVectored};
 
 mod vec_wrapper;
-pub(crate) use vec_wrapper::{read_vec_meta, write_vec_meta};
+pub use vec_wrapper::{read_vec_meta, write_vec_meta};
 
 pub(crate) fn deref(buf: &impl IoBuf) -> &[u8] {
     // Safety: the `IoBuf` trait is marked as unsafe and is expected to be

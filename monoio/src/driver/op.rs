@@ -23,7 +23,7 @@ mod write;
 mod splice;
 
 /// In-flight operation
-pub(crate) struct Op<T: 'static> {
+pub struct Op<T: 'static> {
     // Driver running the operation
     pub(super) driver: driver::Inner,
 
@@ -36,7 +36,7 @@ pub(crate) struct Op<T: 'static> {
 
 /// Operation completion. Returns stored state with the result of the operation.
 #[derive(Debug)]
-pub(crate) struct Completion<T> {
+pub struct Completion<T> {
     pub(crate) data: T,
     pub(crate) meta: CompletionMeta,
 }

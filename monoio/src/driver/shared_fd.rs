@@ -9,7 +9,7 @@ use super::CURRENT;
 // Tracks in-flight operations on a file descriptor. Ensures all in-flight
 // operations complete before submitting the close.
 #[derive(Clone, Debug)]
-pub(crate) struct SharedFd {
+pub struct SharedFd {
     inner: Rc<Inner>,
 }
 
