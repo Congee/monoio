@@ -15,9 +15,7 @@ use crate::buf::slice::SliceMut;
 /// (`&buf[..]`) cannot be used. Instead, `monoio` provides an owned slice
 /// API: [`slice()`]. The method takes ownership of the buffer and returns a
 /// `Slice<Self>` type that tracks the requested offset.
-///
-/// [`slice()`]: IoBuf::slice
-/// # Safety
+/// [`slice()`]: IoBuf::slice # Safety
 /// impl it safely
 pub unsafe trait IoBuf: Unpin + 'static {
     /// Returns a raw pointer to the vector's buffer.
@@ -38,6 +36,14 @@ pub unsafe trait IoBuf: Unpin + 'static {
     ///
     /// For `Vec`, this is identical to `len()`.
     fn bytes_init(&self) -> usize;
+
+    /// Total size of the buffer, including uninitialized memory, if any.
+    ///
+    /// This method is to be used by the `monoio` runtime and it is not
+    /// expected for users to call it directly.
+    ///
+    /// For `Vec`, this is identical to `capacity()`.
+    fn bytes_total(&self) -> usize;
 
     /// Returns a view of the buffer with the specified range.
     #[inline]
@@ -74,6 +80,10 @@ unsafe impl IoBuf for Vec<u8> {
     fn bytes_init(&self) -> usize {
         self.len()
     }
+
+    fn bytes_total(&self) -> usize {
+        self.capacity()
+    }
 }
 
 unsafe impl IoBuf for Box<[u8]> {
@@ -85,6 +95,10 @@ unsafe impl IoBuf for Box<[u8]> {
     #[inline]
     fn bytes_init(&self) -> usize {
         self.len()
+    }
+
+    fn bytes_total(&self) -> usize {
+        self.bytes_init()
     }
 }
 
@@ -98,6 +112,10 @@ unsafe impl IoBuf for &'static [u8] {
     fn bytes_init(&self) -> usize {
         <[u8]>::len(self)
     }
+
+    fn bytes_total(&self) -> usize {
+        self.len()
+    }
 }
 
 unsafe impl<const N: usize> IoBuf for Box<[u8; N]> {
@@ -108,6 +126,10 @@ unsafe impl<const N: usize> IoBuf for Box<[u8; N]> {
 
     #[inline]
     fn bytes_init(&self) -> usize {
+        self.len()
+    }
+
+    fn bytes_total(&self) -> usize {
         self.len()
     }
 }
@@ -122,6 +144,10 @@ unsafe impl<const N: usize> IoBuf for &'static [u8; N] {
     fn bytes_init(&self) -> usize {
         self.len()
     }
+
+    fn bytes_total(&self) -> usize {
+        self.len()
+    }
 }
 
 unsafe impl<const N: usize> IoBuf for &'static mut [u8; N] {
@@ -132,6 +158,10 @@ unsafe impl<const N: usize> IoBuf for &'static mut [u8; N] {
 
     #[inline]
     fn bytes_init(&self) -> usize {
+        self.len()
+    }
+
+    fn bytes_total(&self) -> usize {
         self.len()
     }
 }
@@ -146,6 +176,10 @@ unsafe impl IoBuf for &'static str {
     fn bytes_init(&self) -> usize {
         <str>::len(self)
     }
+
+    fn bytes_total(&self) -> usize {
+        self.bytes_init()
+    }
 }
 
 #[cfg(feature = "bytes")]
@@ -159,6 +193,10 @@ unsafe impl IoBuf for bytes::Bytes {
     fn bytes_init(&self) -> usize {
         self.len()
     }
+
+    fn bytes_total(&self) -> usize {
+        self.bytes_init()
+    }
 }
 
 #[cfg(feature = "bytes")]
@@ -171,6 +209,11 @@ unsafe impl IoBuf for bytes::BytesMut {
     #[inline]
     fn bytes_init(&self) -> usize {
         self.len()
+    }
+
+
+    fn bytes_total(&self) -> usize {
+        self.capacity()
     }
 }
 
@@ -223,7 +266,7 @@ pub unsafe trait IoBufMut: Unpin + 'static {
     /// buf.slice(5..10);
     /// ```
     #[inline]
-    fn slice_mut(mut self, range: impl ops::RangeBounds<usize>) -> SliceMut<Self>
+    fn slice_mut(self, range: impl ops::RangeBounds<usize>) -> SliceMut<Self>
     where
         Self: Sized,
         Self: IoBuf,

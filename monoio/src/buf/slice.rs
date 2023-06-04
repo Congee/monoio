@@ -32,7 +32,7 @@ pub struct SliceMut<T> {
 
 impl<T: IoBuf + IoBufMut> SliceMut<T> {
     /// Create a SliceMut from a buffer and range.
-    pub fn new(mut buf: T, begin: usize, end: usize) -> Self {
+    pub fn new(buf: T, begin: usize, end: usize) -> Self {
         assert!(end <= buf.bytes_total());
         assert!(begin <= buf.bytes_init());
         assert!(begin <= end);
@@ -165,6 +165,11 @@ unsafe impl<T: IoBuf> IoBuf for SliceMut<T> {
     fn bytes_init(&self) -> usize {
         ops::Deref::deref(self).len()
     }
+
+    #[inline]
+    fn bytes_total(&self) -> usize {
+        self.end - self.begin
+    }
 }
 
 unsafe impl<T: IoBufMut> IoBufMut for SliceMut<T> {
@@ -253,6 +258,11 @@ unsafe impl<T: IoBuf> IoBuf for Slice<T> {
     fn bytes_init(&self) -> usize {
         self.end - self.begin
     }
+
+    #[inline]
+    fn bytes_total(&self) -> usize {
+        self.end - self.begin
+    }
 }
 
 /// A wrapper to make IoVecBuf impl IoBuf.
@@ -297,6 +307,18 @@ unsafe impl<T: IoVecBuf> IoBuf for IoVecWrapper<T> {
         {
             let iovec = unsafe { *self.raw.read_iovec_ptr() };
             iovec.iov_len
+        }
+        #[cfg(windows)]
+        {
+            unimplemented!()
+        }
+    }
+
+    #[inline]
+    fn bytes_total(&self) -> usize {
+        #[cfg(unix)]
+        {
+            unimplemented!()
         }
         #[cfg(windows)]
         {

@@ -19,7 +19,6 @@
 #![feature(unboxed_closures)]
 #![feature(once_cell)]
 #![feature(lazy_cell)]
-#![feature(impl_trait_in_assoc_type)]
 
 #[macro_use]
 pub mod macros;

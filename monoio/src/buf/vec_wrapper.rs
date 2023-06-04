@@ -1,5 +1,6 @@
 use super::{IoVecBuf, IoVecBufMut};
 
+#[derive(Debug)]
 pub struct IoVecMeta {
     #[cfg(unix)]
     data: Vec<libc::iovec>,
@@ -42,8 +43,8 @@ pub fn write_vec_meta<T: IoVecBufMut>(iovec_buf: &mut T) -> IoVecMeta {
 
         let mut data = Vec::with_capacity(iovec_len);
         let mut len = 0;
-        for i in 0..iovec_len {
-            let iovec = unsafe { *ptr.add(i) };
+        for offset in 0..iovec_len {
+            let iovec = unsafe { *ptr.add(offset) };
             data.push(iovec);
             len += iovec.iov_len;
         }

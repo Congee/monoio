@@ -159,7 +159,7 @@ pub struct PReadVec<T> {
     /// while the operation is in-flight.
     #[allow(unused)]
     fd: SharedFd,
-    offset: libc::off_t,
+    offset: u64,
 
     /// Reference to the in-flight buffer.
     pub(crate) buf_vec: T,
@@ -186,7 +186,7 @@ impl<T: IoVecBufMut> OpAble for PReadVec<T> {
             self.fd.raw_fd(),
             self.buf_vec.write_iovec_ptr(),
             self.buf_vec.write_iovec_len().min(i32::MAX as usize) as _,
-            self.offset,
+            self.offset as _,
         ))
     }
 }
@@ -203,9 +203,7 @@ impl<T: IoVecBufMut> Op<PReadVec<T>> {
 
         if let Ok(n) = res {
             // Safety: the kernel wrote `n` bytes to the buffer.
-            unsafe {
-                buf_vec.set_init(n);
-            }
+            unsafe { buf_vec.set_init(n) };
         }
         (res, buf_vec)
     }

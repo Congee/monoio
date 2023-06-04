@@ -33,7 +33,7 @@ async fn echo_server() {
             assert_eq!(&buf[..], msg.as_bytes());
 
             // writev
-            let buf_vec: monoio::buf::VecBuf = buf_vec_to_write.take().unwrap().into();
+            let buf_vec: monoio::buf::VecBuf<_> = buf_vec_to_write.take().unwrap().into();
             let (res, buf_vec) = stream.write_vectored_all(buf_vec).await;
             let raw_vec: Vec<Vec<u8>> = buf_vec.into();
             assert!(res.is_ok());
@@ -41,7 +41,7 @@ async fn echo_server() {
             buf_vec_to_write = Some(raw_vec);
 
             // readv
-            let buf_vec: monoio::buf::VecBuf = vec![vec![0; 3], vec![0; iov_msg.len() - 3]].into();
+            let buf_vec: monoio::buf::VecBuf<_> = vec![vec![0; 3], vec![0; iov_msg.len() - 3]].into();
             let (res, buf_vec) = stream.read_vectored_exact(buf_vec).await;
             assert!(res.is_ok());
             assert_eq!(res.unwrap(), iov_msg.len());

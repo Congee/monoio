@@ -43,6 +43,11 @@ unsafe impl IoBuf for RawBuf {
     fn bytes_init(&self) -> usize {
         self.len
     }
+
+    #[inline]
+    fn bytes_total(&self) -> usize {
+        self.len
+    }
 }
 
 unsafe impl IoBufMut for RawBuf {
