@@ -2,7 +2,10 @@
 use std::os::unix::io::{AsRawFd, RawFd};
 #[cfg(windows)]
 use std::os::windows::io::{AsRawHandle, RawHandle};
-use std::{io, path::Path};
+use std::{
+    io,
+    path::{Path, PathBuf},
+};
 
 use crate::{
     buf::{IoBuf, IoBufMut},
@@ -476,6 +479,36 @@ impl File {
         self.fd.close().await;
         Ok(())
     }
+
+    #[cfg(unix)]
+    pub async fn statx(&self) -> io::Result<libc::statx> {
+        let flags = libc::AT_EMPTY_PATH;
+        let mask = libc::STATX_ALL;
+        let mut buf = unsafe { std::mem::zeroed::<libc::statx>() };
+
+        let op = Op::statx::<PathBuf>(Some(self.fd.clone()), None, flags, mask, &mut buf)?;
+        op.await.meta.result?;
+
+        Ok(buf)
+    }
+}
+
+#[cfg(unix)]
+pub async fn remove_file<P: AsRef<Path>>(path: P) -> io::Result<()> {
+    Op::unlink_at(path, 0)?.await.meta.result?;
+    Ok(())
+}
+
+#[cfg(unix)]
+pub async fn remove_dir<P: AsRef<Path>>(path: P) -> io::Result<()> {
+    Op::unlink_at(path, libc::AT_REMOVEDIR)?.await.meta.result?;
+    Ok(())
+}
+
+#[cfg(unix)]
+pub async fn rename<P: AsRef<Path>>(from: P, to: P) -> io::Result<()> {
+    Op::rename_at(from, to, 0)?.await.meta.result?;
+    Ok(())
 }
 
 #[cfg(unix)]

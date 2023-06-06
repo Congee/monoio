@@ -16,7 +16,10 @@ mod open;
 mod poll;
 mod read;
 mod recv;
+mod rename_at;
+mod remove;
 mod send;
+mod statx;
 mod write;
 
 #[cfg(all(target_os = "linux", feature = "splice"))]
